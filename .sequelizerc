@@ -1,0 +1,8 @@
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('src/config', 'database.js'),     // Main database configuration.
+  'models-path': path.resolve('src', 'models'),            // Database structures.
+  'seeders-path': path.resolve('src/db', 'seeders'),       // Populate the database tables with template data.
+  'migrations-path': path.resolve('src/db', 'migrations')  // Create the needed database tables.
+};
