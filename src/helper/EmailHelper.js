@@ -1,11 +1,10 @@
-/* eslint-disable class-methods-use-this */
-
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
 const config = require('../config/config');
 const logger = require('../config/logger');
 
 class EmailHelper {
+
     async sendEmail(from, to, subject, body, auth = null, attachment = false) {
         try {
             const apiKey = auth === null ? config.mailgun.apiKey : auth.apiKey;

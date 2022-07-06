@@ -55,7 +55,7 @@ class PostService {
             if (found_posts.length > 0){
                 return responseHandler.returnSuccess(httpStatus.OK, 'Fetched posts.', found_posts);
             } else {
-                return responseHandler.returnSuccess(httpStatus.OK, `No posts found from: ${where}`);
+                return responseHandler.returnError(httpStatus.NOT_FOUND, `No posts found from: ${where}.`);
             }
 
         } catch (e) {

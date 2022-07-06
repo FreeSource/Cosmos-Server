@@ -26,32 +26,34 @@ class TokenService {
 
     verifyToken = async (token, type) => {
 
-        /* Verify the token signature. */
-        const payload = await jwt.verify(token, config.jwt.secret, (err, decoded) => {
-            if (err) {
-                return false;
+        /* Verify token signature. */
+        const payload = jwt.verify(token, config.jwt.secret, (err, decoded) => {
+            return (err ? null : decoded);
+        });
+
+        /* Attempt to find token in the database. */
+        if (payload !== null) {
+            const tokenDoc = await this.tokenDao.findOne({
+                token,
+                type,
+                user_uuid: payload.sub,
+                blacklisted: false,
+            });
+    
+            /* Otherwise, token is not found. */
+            if (!tokenDoc) {
+                return null
             }
 
-            return true;
-        });
-
-        /* Attempt to find the token in the database. */
-        const tokenDoc = await this.tokenDao.findOne({
-            token,
-            type,
-            user_uuid: payload.sub,
-            blacklisted: false,
-        });
-
-        /* Otherwise, token is not found. */
-        if (!tokenDoc) {
-            return false
+            return tokenDoc;
         }
 
-        return true;
+        return null;
     };
 
     saveToken = async (token, userId, expires, type, blacklisted = false) => {
+
+        /* Save a singular token in the database. */
         return this.tokenDao.create({
             token,
             user_id: userId,
@@ -70,30 +72,31 @@ class TokenService {
     };
 
     generateAuthTokens = async (user) => {
+
+        /* Set expiration time for access token. */
         const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
 
-        const accessToken = await this.generateToken(
+        /* Generate the access token. */
+        const accessToken = this.generateToken(
             user.uuid,
             accessTokenExpires,
             tokenTypes.ACCESS,
         );
 
+        /* Set expiration for refresh token. */
         const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
-        const refreshToken = await this.generateToken(
+
+        /* Generate the refresh token. */
+        const refreshToken = this.generateToken(
             user.uuid,
             refreshTokenExpires,
             tokenTypes.REFRESH,
         );
         
+        /* Setup access token and refresh token storage. */
         const authTokens = [];
-        authTokens.push({
-            token: accessToken,
-            user_uuid: user.uuid,
-            expires: accessTokenExpires.toDate(),
-            type: tokenTypes.ACCESS,
-            blacklisted: false,
-        });
 
+        /* Add refresh token to above array for storage. */
         authTokens.push({
             token: refreshToken,
             user_uuid: user.uuid,
@@ -102,24 +105,20 @@ class TokenService {
             blacklisted: false,
         });
 
+        /* Save the tokens array. */
         await this.saveMultipleTokens(authTokens);
-        const expiredAccessTokenWhere = {
-            expires: {
-                [Op.lt]: moment(),
-            },
-            type: tokenTypes.ACCESS,
-        };
 
-        await this.tokenDao.remove(expiredAccessTokenWhere);
+        /* Find expired refresh token and remove. */
         const expiredRefreshTokenWhere = {
             expires: {
                 [Op.lt]: moment(),
             },
             type: tokenTypes.REFRESH,
         };
-        
         await this.tokenDao.remove(expiredRefreshTokenWhere);
-        const tokens = {
+
+        /* Return token data. */
+        return {
             access: {
                 token: accessToken,
                 expires: accessTokenExpires.toDate(),
@@ -128,9 +127,28 @@ class TokenService {
                 token: refreshToken,
                 expires: refreshTokenExpires.toDate(),
             },
-        };
+        }
+    };
 
-        return tokens;
+    refreshAccessToken = async (user) => {
+
+        /* Set expiration for refresh token. */
+        const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
+
+        /* Generate the refresh token. */
+        const accessToken = this.generateToken(
+            user.uuid,
+            accessTokenExpires,
+            tokenTypes.ACCESS,
+        );
+
+        /* Return refresh token. */
+        return {
+            access: {
+                token: accessToken,
+                expires: accessTokenExpires.toDate(),
+            },
+        };
     };
 }
 

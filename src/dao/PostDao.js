@@ -12,7 +12,8 @@ class PostDao extends SuperDao {
         return Post.findAll({where: {author: location},
             raw: true,
             nest: true,
-            limit: amount
+            limit: amount,
+            attributes: { exclude: ['user_uuid'] },
         });
     }
 }

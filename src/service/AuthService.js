@@ -16,16 +16,21 @@ class AuthService {
 
     loginWithEmailPassword = async (email, password) => {
         try {
+
+            /* Find user by email. */
             let user = await this.userDao.findByEmail(email);
 
+            /* If email is not found, user must not exist or email is invalid. */
             if (user == null) {
                 return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Invalid Email Address!');
             }
 
+            /* Check if user password is valid. */
             const isPasswordValid = await bcrypt.compare(password, user.password);
             user = user.toJSON();
             delete user.password;
 
+            /* If password is invalid, increment attempts and notify user. */
             if (!isPasswordValid) {
                 var user_attempt = await this.attemptDao.findOne(user.uuid);
 
@@ -43,6 +48,7 @@ class AuthService {
                 return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Wrong Password!');
             }
 
+            /* Login successful and return user data. */
             return responseHandler.returnSuccess(httpStatus.OK, 'Login Successful', user);
         } catch (e) {
             logger.error(e);
@@ -51,25 +57,26 @@ class AuthService {
     };
 
     logout = async (req, res) => {
+
+        /* Check for refresh token passed from body. */
         const refreshTokenDoc = await this.tokenDao.findOne({
             token: req.body.refresh_token,
             type: tokenTypes.REFRESH,
             blacklisted: false,
         });
 
+        /* If the refresh token is invalid, no corresponding user. */
         if (!refreshTokenDoc) {
             res.status(httpStatus.NOT_FOUND).send({ message: 'User Not found!' });
         }
 
+        /* 
+        Remove the refresh token from database.
+        Any access tokens that havent expired will still be valid upon logout!
+        */
         await this.tokenDao.remove({
             token: req.body.refresh_token,
             type: tokenTypes.REFRESH,
-            blacklisted: false,
-        });
-
-        await this.tokenDao.remove({
-            token: req.body.access_token,
-            type: tokenTypes.ACCESS,
             blacklisted: false,
         });
     };

@@ -4,6 +4,7 @@ const { tokenTypes } = require('../config/constant');
 const AuthService = require('../service/AuthService');
 const UserService = require('../service/UserService');
 const TokenService = require('../service/TokenService');
+const responseHandler = require('../helper/responseHandler');
 
 class AuthController {
     constructor() {
@@ -14,54 +15,62 @@ class AuthController {
 
     register = async (req, res) => {
         try {
-            const user = await this.userService.createUser(req.body);
+
+            /* Attempt to create the user from serive. */
+            const { code, status, message, data } = await this.userService.createUser(req.body);
             
+            /* Create tokens dictionary. */
             let tokens = {};
-            const { status } = user.response;
-            if (user.response.status) {
-                tokens = await this.tokenService.generateAuthTokens(user.response.data);
+
+            /* If creating the user was successful, generate corresponding auth tokens. */
+            if (status) {
+                tokens = await this.tokenService.generateAuthTokens(data);
             }
 
-            const { message, data } = user.response;
-            res.status(user.statusCode).send({ status, message, data, tokens });
+            /* Return created user data and tokens. */
+            res.status(code).json({ code, status, message, data, tokens });
         } catch (e) {
             logger.error(e);
-            res.status(httpStatus.BAD_GATEWAY).send(e);
+            responseHandler.returnUnrecoverableError(req, res);
         }
     };
 
     checkEmail = async (req, res) => {
         try {
+
+            /* Check if user email exists. */
             const isExists = await this.userService.isEmailExists(req.body.email.toLowerCase());
+
+            /* TODO */
             res.status(isExists.statusCode).send(isExists.response);
         } catch (e) {
             logger.error(e);
-            res.status(httpStatus.BAD_GATEWAY).send(e);
+            responseHandler.returnUnrecoverableError(req, res);
         }
     };
 
     login = async (req, res) => {
         try {
+
+            /* Get fields from body. */
             const { email, password } = req.body;
-            const user = await this.authService.loginWithEmailPassword(
-                email.toLowerCase(),
-                password,
-            );
 
-            const { message } = user.response;
-            const { data } = user.response;
-            const { status } = user.response;
-            const code = user.statusCode;
+            /* Attempt to login with auth service. */
+            const { code, status, message, data } = await this.authService.loginWithEmailPassword(email.toLowerCase(), password);
 
+            /* Create tokens dictionary. */
             let tokens = {};
-            if (user.response.status) {
+
+            /* Check if login was successful and generate auth tokens. */
+            if (status) {
                 tokens = await this.tokenService.generateAuthTokens(data);
             }
 
-            res.status(user.statusCode).send({ status, code, message, data, tokens });
+            /* Return created user data and tokens. */
+            res.status(code).json({ code, status, message, data, tokens });
         } catch (e) {
             logger.error(e);
-            res.status(httpStatus.BAD_GATEWAY).send(e);
+            responseHandler.returnUnrecoverableError(req, res);
         }
     };
  
@@ -72,32 +81,50 @@ class AuthController {
 
     refreshTokens = async (req, res) => {
         try {
+
+            /* Verify the refresh token. */
             const refreshTokenDoc = await this.tokenService.verifyToken(
                 req.body.refresh_token,
                 tokenTypes.REFRESH,
             );
 
-            const user = await this.userService.getUserByUuid(refreshTokenDoc.user_uuid);
-            if (user == null) {
-                res.status(httpStatus.BAD_GATEWAY).send('User Not Found!');
-            }
+            /* Check if we got a result back from verifying the refresh token. */
+            if (refreshTokenDoc !== null) {
 
-            await this.tokenService.removeTokenById(refreshTokenDoc.id);
-            const tokens = await this.tokenService.generateAuthTokens(user);
-            res.send(tokens);
+                /* Attempt to fetch the user. */
+                const user = await this.userService.getUserByUuid(refreshTokenDoc.user_uuid);
+                if (user == null) {
+                    let { code, status, message } = responseHandler.returnError(httpStatus, 'Could not refresh token, user not found.');
+                    res.status(code).json({ code, status, message });
+                }
+
+                /* Specifically refresh the access token only. */
+                const tokens = await this.tokenService.refreshAccessToken(user);
+            
+                /* Return refreshed access token and data. */
+                let { code, status, message } = responseHandler.returnSuccess(httpStatus.OK, 'Successfully refreshed access token.');
+                res.status(code).json({ code, status, message, tokens });
+            } else {
+                let { code, status, message } = responseHandler.returnError(httpStatus.FORBIDDEN, 'Invalid refresh token.');
+                res.status(code).json({ code, status, message });
+            }
         } catch (e) {
             logger.error(e);
-            res.status(httpStatus.BAD_GATEWAY).send(e);
+            responseHandler.returnUnrecoverableError(req, res);
         }
     };
 
     changePassword = async (req, res) => {
         try {
+
+            /* Chnage password with user service. */
             const responseData = await this.userService.changePassword(req.body, req.user.uuid);
-            res.status(responseData.statusCode).send(responseData.response);
+
+            /* Return changed password data. */
+            res.status(responseData.statusCode).json(responseData.response);
         } catch (e) {
             logger.error(e);
-            res.status(httpStatus.BAD_GATEWAY).send(e);
+            responseHandler.returnUnrecoverableError(req, res);
         }
     };
 }

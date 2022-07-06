@@ -1,7 +1,6 @@
 const config = require('./config');
 const models = require('../models');
 const UserDao = require('../dao/UserDao');
-const TokenDao = require('../dao/TokenDao');
 const { tokenTypes } = require('./constant');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
@@ -18,20 +17,9 @@ const jwtVerify = async (req, payload, done) => {
         }
 
         const userDao = new UserDao();
-        const tokenDao = new TokenDao();
         const authorization = req.headers.authorization !== undefined ? req.headers.authorization.split(' ') : [];
 
         if (authorization[1] === undefined) {
-            return done(null, false);
-        }
-
-        tokenDoc = await tokenDao.findOne({
-            token: authorization[1],
-            type: tokenTypes.ACCESS,
-            blacklisted: false,
-        });
-
-        if (!tokenDoc) {
             return done(null, false);
         }
 
@@ -43,7 +31,6 @@ const jwtVerify = async (req, payload, done) => {
 
         done(null, user);
     } catch (error) {
-        console.log(error);
         done(error, false);
     }
 };

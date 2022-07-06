@@ -1,14 +1,14 @@
 {
   "name": "cosmos",
   "version": "1.0.0",
-  "description": "",
+  "description": "An open source social platform, focused on what the people want.",
   "main": "src/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "start": "cross-env NODE_ENV=production node src/index.js"
   },
-  "author": "GalaxzyDev",
-  "license": "MIT",
+  "author": "CalamityDev",
+  "license": "GNU",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -20,7 +20,7 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mailgun.js": "^7.0.3",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "mysql2": "^2.3.3",
     "node-cron": "^3.0.1",
     "passport": "^0.6.0",
@@ -35,7 +35,7 @@
     "chai": "^4.3.6",
     "eslint": "^8.19.0",
     "mocha": "^10.0.0",
-    "nodemon": "^2.0.18",
+    "nodemon": "^2.0.19",
     "prettier": "^2.7.1",
     "sinon": "^14.0.0"
   }

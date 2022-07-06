@@ -1,3 +1,5 @@
+const httpStatus = require("http-status");
+
 const logError = (err) => {
     console.error(err);
 };
@@ -9,25 +11,25 @@ const logErrorMiddleware = (err, req, res, next) => {
 
 const returnError = (statusCode, message) => {
     return {
-        statusCode,
-        response: {
-            status: false,
-            code: statusCode,
-            message,
-        },
+        code: statusCode,
+        status: false,
+        message,
     };
 };
+
 const returnSuccess = (statusCode, message, data = {}) => {
     return {
-        statusCode,
-        response: {
-            status: true,
-            code: statusCode,
-            message,
-            data,
-        },
+        code: statusCode,
+        status: true,
+        message,
+        data,
     };
 };
+
+const returnUnrecoverableError = (req, res) => {
+    let { code, status, message } = returnError(httpStatus.BAD_GATEWAY, 'An error occured while preforming this action.');
+    return res.status(code).json({ code, status, message });
+}
 
 const getPaginationData = (rows, page, limit) => {
     const { count: totalItems, rows: data } = rows;
@@ -48,4 +50,5 @@ module.exports = {
     returnError,
     returnSuccess,
     getPaginationData,
+    returnUnrecoverableError,
 };

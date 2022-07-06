@@ -1,14 +1,20 @@
 const passport = require('passport');
+const httpStatus = require('http-status');
+const responseHandler = require('../helper/responseHandler');
 
 const auth = () => {
-    return async (req, res, next) => {
-        return new Promise(() => {
-            passport.authenticate('jwt', { session: false })(req, res, next);
-        }).then(() => {
+    return (req, res, next) => {
+        passport.authenticate('jwt', { session: false }, (err, user, info) => {
+            if (err) return next(err);
+
+            if (!user) {
+                const { code, status, message } = responseHandler.returnError(httpStatus.UNAUTHORIZED, "Invalid or expired access token.");
+                return res.status(code).send({ code, status, message });
+            }
+            
+            req.user = user;
             return next();
-        }).catch((err) => {
-            return next(err);
-        });
+        })(req, res, next);
     };
 };
 
