@@ -66,8 +66,7 @@ class UserService {
     };
 
     changePassword = async (data, uuid) => {
-        console.log(uuid);
-
+        
         /* Attempt to fetch the user by their UUID. */
         let user = await this.userDao.findOneByWhere({ uuid });
 

@@ -33,7 +33,7 @@ const returnUnrecoverableError = (req, res) => {
 
 const getPaginationData = (rows, page, limit) => {
     const { count: totalItems, rows: data } = rows;
-    const currentPage = page ? +page : 0;
+    const currentPage = page ? Number(page) : 0;
     const totalPages = Math.ceil(totalItems / limit);
 
     return {

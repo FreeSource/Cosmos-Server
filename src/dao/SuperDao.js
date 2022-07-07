@@ -42,12 +42,12 @@ class SuperDao {
 
     async findByWhere(
         where,
-        attributes = undefined,
+        attributes = null,
         order = ['id', 'asc'],
         limit = null,
         offset = null
     ) {
-        if (!attributes) {
+        if (attributes !== null) {
             return this.Model.findAll({
                 where,
                 order: [order],
@@ -83,7 +83,9 @@ class SuperDao {
             return false;
         }
 
-        return await instance.increment(fieldName, { by: incrementValue });
+        let increment = await instance.increment(fieldName, { by: incrementValue });
+
+        return increment;
     }
 
     async decrementCountInFieldByWhere(fieldName, where, decrementValue = 1) {
@@ -92,7 +94,9 @@ class SuperDao {
             return false;
         }
 
-        return await instance.decrement(fieldName, { by: decrementValue });
+        let decrement = await instance.decrement(fieldName, { by: decrementValue });
+
+        return decrement;
     }
 }
 

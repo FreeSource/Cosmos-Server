@@ -32,7 +32,7 @@ class AuthService {
 
             /* If password is invalid, increment attempts and notify user. */
             if (!isPasswordValid) {
-                var user_attempt = await this.attemptDao.findOne(user.uuid);
+                let user_attempt = await this.attemptDao.findOne(user.uuid);
 
                 if (user_attempt) {
                     let data = user_attempt.dataValues;

@@ -14,6 +14,9 @@ process.env.PWD = process.cwd();
 /* Create a new express instance. */
 const app = express();
 
+/* Disable X-POWERED-BY header. */
+app.disable("X-POWERED-BY");
+
 /* Configure Passport. */
 app.use(passport.initialize());
 passport.use('jwt', passportJwt.jwtStrategy);

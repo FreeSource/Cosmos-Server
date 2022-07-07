@@ -17,13 +17,13 @@ const jwtVerify = async (req, payload, done) => {
         }
 
         const userDao = new UserDao();
-        const authorization = req.headers.authorization !== undefined ? req.headers.authorization.split(' ') : [];
+        const authorization = typeof req.headers.authorization !== "undefined" ? req.headers.authorization.split(' ') : [];
 
-        if (authorization[1] === undefined) {
+        if (typeof authorization[1] === "undefined") {
             return done(null, false);
         }
 
-        var user = await userDao.findOneByWhere({ uuid: payload.sub });
+        let user = await userDao.findOneByWhere({ uuid: payload.sub });
 
         if (!user) {
             return done(null, false);

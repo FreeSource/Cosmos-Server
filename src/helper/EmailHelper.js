@@ -27,7 +27,7 @@ class EmailHelper {
                     attachment,
                 };
             }
-            return !!(await client.messages.create(domain, postData));
+            return Boolean(await client.messages.create(domain, postData));
         } catch (err) {
             console.log(err);
             logger.error(err);
@@ -55,7 +55,7 @@ class EmailHelper {
                 attachments,
             };
 
-            return !!(await client.messages.create(domain, postData));
+            return Boolean(await client.messages.create(domain, postData));
         } catch (err) {
             logger.error(err);
             return false;
