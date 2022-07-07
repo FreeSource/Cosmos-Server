@@ -13,7 +13,7 @@ class SuperDao {
     }
 
     async findOneByWhere(where, attributes = null, order = ['id', 'desc']) {
-        if (attributes == null) {
+        if (attributes === null) {
             return this.Model.findOne({
                 where,
                 order: [order],

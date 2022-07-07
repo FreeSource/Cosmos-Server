@@ -5,7 +5,7 @@ const httpStatus = require('http-status');
 const passportJwt = require('./config/passport');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 
-/* Import all the routes from the ./route directory. Entry is ./route/index.js */
+/* Import all the routes from the ./route directory. Entry is ./route/index.js. */
 const routes = require('./route');
 
 /* Get the current working directory of the application. */
@@ -24,7 +24,7 @@ app.use(express.json());
 app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 
-/* Modify application error handling */
+/* Modify application error handling. */
 app.use(errorConverter);
 app.use(errorHandler);
 
@@ -41,7 +41,7 @@ app.use('*', async (req, res) => {
     res.status(httpStatus.NOT_FOUND).send('Endpoint not found.');
 });
 
-/* Import all the modules from the ./module directory. Entry is ./module/index.js */
+/* Import all the modules from the ./module directory. Entry is ./module/index.js. */
 const db = require('./models');
 db.sequelize.sync();
 

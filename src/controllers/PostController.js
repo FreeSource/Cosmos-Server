@@ -1,4 +1,3 @@
-const httpStatus = require('http-status');
 const logger = require('../config/logger');
 const AuthService = require('../service/AuthService');
 const PostService = require('../service/PostService');

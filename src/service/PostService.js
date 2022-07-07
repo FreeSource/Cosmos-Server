@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs');
 const httpStatus = require('http-status');
 const UserDao = require('../dao/UserDao');
 const PostDao = require('../dao/PostDao');

@@ -21,7 +21,7 @@ class AuthService {
             let user = await this.userDao.findByEmail(email);
 
             /* If email is not found, user must not exist or email is invalid. */
-            if (user == null) {
+            if (user === null) {
                 return responseHandler.returnError(httpStatus.BAD_REQUEST, 'Invalid Email Address!');
             }
 

@@ -19,7 +19,7 @@ module.exports = {
             },
             attempt_num: {
                 allowNull: false,
-                type: sequelize.INTEGER,
+                type: Sequelize.INTEGER,
             },
             captured_at: {
                 allowNull: false,

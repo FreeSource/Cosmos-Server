@@ -4,7 +4,7 @@ const responseHandler = require('../helper/responseHandler');
 
 const auth = () => {
     return (req, res, next) => {
-        passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        passport.authenticate('jwt', { session: false }, (err, user) => {
             if (err) return next(err);
 
             if (!user) {

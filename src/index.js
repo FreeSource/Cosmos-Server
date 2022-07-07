@@ -11,7 +11,7 @@ const http = require('http');
 /* Start REST API server. */
 const server = http.createServer(app);
 
-/* Start websocket server */ 
+/* Start websocket server. */ 
 socket.registerSocketServer(server);
 
 /* Start the Cosmos API on the specified port. */

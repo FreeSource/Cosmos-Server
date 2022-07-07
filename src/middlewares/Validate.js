@@ -14,7 +14,7 @@ const check = (schema, property) => {
 
         /* Validate the passed schema. */
         const { error } = schema.validate(req[property], options); 
-        const valid = error == null; 
+        const valid = error === null; 
         if (valid) { 
             next(); 
         } else { 

@@ -93,7 +93,7 @@ class AuthController {
 
                 /* Attempt to fetch the user. */
                 const user = await this.userService.getUserByUuid(refreshTokenDoc.user_uuid);
-                if (user == null) {
+                if (user === null) {
                     let { code, status, message } = responseHandler.returnError(httpStatus, 'Could not refresh token, user not found.');
                     res.status(code).json({ code, status, message });
                 }
