@@ -15,7 +15,7 @@ process.env.PWD = process.cwd();
 const app = express();
 
 /* Disable X-POWERED-BY header. */
-app.disable("X-POWERED-BY");
+app.disable("x-powered-by");
 
 /* Configure Passport. */
 app.use(passport.initialize());

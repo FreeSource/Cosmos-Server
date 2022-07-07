@@ -83,7 +83,7 @@ class SuperDao {
             return false;
         }
 
-        let increment = await instance.increment(fieldName, { by: incrementValue });
+        const increment = await instance.increment(fieldName, { by: incrementValue });
 
         return increment;
     }
@@ -94,7 +94,7 @@ class SuperDao {
             return false;
         }
 
-        let decrement = await instance.decrement(fieldName, { by: decrementValue });
+        const decrement = await instance.decrement(fieldName, { by: decrementValue });
 
         return decrement;
     }

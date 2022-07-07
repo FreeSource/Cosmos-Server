@@ -23,7 +23,7 @@ const jwtVerify = async (req, payload, done) => {
             return done(null, false);
         }
 
-        let user = await userDao.findOneByWhere({ uuid: payload.sub });
+        const user = await userDao.findOneByWhere({ uuid: payload.sub });
 
         if (!user) {
             return done(null, false);
